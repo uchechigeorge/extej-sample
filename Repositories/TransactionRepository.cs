@@ -45,6 +45,7 @@ public class TransactionRepository(ApplicationDbContext dbContext) : ITransactio
 
     var sortColumn = ViewHelpers.GetSortColumn(parameters.SortColumn, sortOptions, "TransactionDate");
     var isDescending = ViewHelpers.IsDescendingOrder(parameters.SortDirection);
+    query = query.OrderBy(sortColumn, isDescending);
     query = query.Skip(parameters.PageSize.GetNaturalInt() * (parameters.Page.GetNaturalInt() - 1)).Take(parameters.PageSize.GetNaturalInt());
 
     var currentBalance = await query.SumAsync(e => e.Value);
