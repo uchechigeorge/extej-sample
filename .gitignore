@@ -3,5 +3,6 @@
 /.vscode
 /bin
 /obj
+/temp
 
 *.sln

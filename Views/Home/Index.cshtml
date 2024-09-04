@@ -1,174 +1,246 @@
-﻿@{
-    ViewData["Title"] = "Wallet layout #9";
+﻿@using MVCWebApplication1.Data.Enums
+@using MVCWebApplication1.Data
+@using MVCWebApplication1.ViewModels
+@model GetTransactionsResBodyViewModel
+
+@{
+  ViewData["Title"] = "Wallet layout #9";
+
+  int resultStart = ((Model.Page - 1) * Model.PageSize) + 1;
+  int resultEnd = Math.Min(resultStart + Model.PageSize - 1, Model.TotalRows);
+
+  bool isValidPage = resultStart <= Model.TotalRows;
+
+  var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+  var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+
+  var yearSelectOptions = new List<SelectListItem>
+  {
+    new SelectListItem { Value = null, Text = "All Years" },
+    new SelectListItem { Value = "2024", Text = "2024" },
+    new SelectListItem { Value = "2023", Text = "2023" },
+    new SelectListItem { Value = "2022", Text = "2022" },
+  };
+
+  var statusSelectOptions = new List<SelectListItem>
+  {
+    new SelectListItem { Value = null, Text = "All Status" },
+    new SelectListItem { Value = "0", Text = "Initiated" },
+    new SelectListItem { Value = "1", Text = "Completed" },
+  };
+
+  var transactionHeaders = new List<TransactionHeader>
+  {
+    new TransactionHeader { ColumnName = "TransactionDate", Title = "Date / Time" },
+    new TransactionHeader { ColumnName = "Description", Title = "Description" },
+    new TransactionHeader { ColumnName = "Amount", Title = "Amount" },
+    new TransactionHeader { ColumnName = "Type", Title = "Type" },
+    new TransactionHeader { ColumnName = "Auth Status", Title = "Status" },
+    new TransactionHeader { ColumnName = "Value", Title = "Value" },
+  };
 }
 
 <div class="container-main">
-        
-        <!-- Main Content -->
-            <nav class="header">
-                <div class="header-wrapper">
-                    <form class="form-inline form-search">
-                    <input class="form-control input-search" type="text" placeholder="Search...">
-                    </form>
 
-                    <div class="notification">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="20" fill="none" viewBox="0 0 16 20"><path fill="#9BAECA" d="m15.34 12.49-1-1.66c-.21-.37-.4-1.07-.4-1.48V6.82C13.94 3.56 11.29.9 8.02.9S2.1 3.56 2.1 6.82v2.53c0 .41-.19 1.11-.4 1.47L.69 12.49c-.4.67-.49 1.41-.24 2.09.24.67.81 1.19 1.55 1.44 1.94.66 3.98.98 6.02.98s4.08-.32 6.02-.97c.7-.23 1.24-.76 1.5-1.45s.19-1.45-.2-2.09" class="svg-color-fill-primary" opacity="0.4"></path><path fill="#9BAECA" d="M10.25 1.32C9.56 1.05 8.81.9 8.02.9c-.78 0-1.53.14-2.22.42C6.23.51 7.08 0 8.02 0c.95 0 1.79.51 2.23 1.32M10.83 18.01A3.01 3.01 0 0 1 8 20c-.79 0-1.57-.32-2.12-.89-.32-.3-.56-.7-.7-1.11.13.02.26.03.4.05.23.03.47.06.71.08.57.05 1.15.08 1.73.08.57 0 1.14-.03 1.7-.08.21-.02.42-.03.62-.06z" class="svg-color-fill-primary"></path></svg>
-                    </div>
-                    <div class="message">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="#A7A7A7" d="M22 15.94c0 2.79-2.24 5.05-5.03 5.06H7.05C4.27 21 2 18.75 2 15.96v-.01s.006-4.426.014-6.652a.498.498 0 0 1 .808-.392c2.376 1.885 6.625 5.322 6.678 5.367.71.569 1.61.89 2.53.89s1.82-.321 2.53-.901c.053-.035 4.207-3.369 6.619-5.285a.5.5 0 0 1 .81.39c.01 2.209.01 6.573.01 6.573" class="svg-color-fill-primary" opacity="0.4"></path><path fill="#A7A7A7" d="M21.476 5.674A5.04 5.04 0 0 0 17.03 3H7.05a5.04 5.04 0 0 0-4.446 2.674.864.864 0 0 0 .221 1.078l7.425 5.939c.52.42 1.15.628 1.78.628h.02c.63 0 1.26-.209 1.78-.629l7.425-5.938a.864.864 0 0 0 .221-1.078" class="svg-color-fill-primary"></path></svg>
-                    </div>
+  <nav class="header">
+    <div class="header-wrapper">
+      <form class="form-inline form-search">
+        <input class="form-control input-search" type="text" placeholder="Search...">
+      </form>
 
-                    <div class="user">
-                        <img src="/images/user.png" alt="user">
-                        <div>
-                            <h4>Austin Robertson</h4>
-                            <h5>Marketing Administrator</h5>
-                        </div>
-                    </div>
+      <div class="notification">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="20" fill="none" viewBox="0 0 16 20"><path fill="#9BAECA" d="m15.34 12.49-1-1.66c-.21-.37-.4-1.07-.4-1.48V6.82C13.94 3.56 11.29.9 8.02.9S2.1 3.56 2.1 6.82v2.53c0 .41-.19 1.11-.4 1.47L.69 12.49c-.4.67-.49 1.41-.24 2.09.24.67.81 1.19 1.55 1.44 1.94.66 3.98.98 6.02.98s4.08-.32 6.02-.97c.7-.23 1.24-.76 1.5-1.45s.19-1.45-.2-2.09" class="svg-color-fill-primary" opacity="0.4"></path><path fill="#9BAECA" d="M10.25 1.32C9.56 1.05 8.81.9 8.02.9c-.78 0-1.53.14-2.22.42C6.23.51 7.08 0 8.02 0c.95 0 1.79.51 2.23 1.32M10.83 18.01A3.01 3.01 0 0 1 8 20c-.79 0-1.57-.32-2.12-.89-.32-.3-.56-.7-.7-1.11.13.02.26.03.4.05.23.03.47.06.71.08.57.05 1.15.08 1.73.08.57 0 1.14-.03 1.7-.08.21-.02.42-.03.62-.06z" class="svg-color-fill-primary"></path></svg>
+      </div>
+      <div class="message">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="#A7A7A7" d="M22 15.94c0 2.79-2.24 5.05-5.03 5.06H7.05C4.27 21 2 18.75 2 15.96v-.01s.006-4.426.014-6.652a.498.498 0 0 1 .808-.392c2.376 1.885 6.625 5.322 6.678 5.367.71.569 1.61.89 2.53.89s1.82-.321 2.53-.901c.053-.035 4.207-3.369 6.619-5.285a.5.5 0 0 1 .81.39c.01 2.209.01 6.573.01 6.573" class="svg-color-fill-primary" opacity="0.4"></path><path fill="#A7A7A7" d="M21.476 5.674A5.04 5.04 0 0 0 17.03 3H7.05a5.04 5.04 0 0 0-4.446 2.674.864.864 0 0 0 .221 1.078l7.425 5.939c.52.42 1.15.628 1.78.628h.02c.63 0 1.26-.209 1.78-.629l7.425-5.938a.864.864 0 0 0 .221-1.078" class="svg-color-fill-primary"></path></svg>
+      </div>
 
-                    <div class="language">
-                        <img src="https://hatscripts.github.io/circle-flags/flags/us.svg" alt="">
-                    </div>
-                </div>
-            </nav>
-                
-        <div class="content">
-
-            <h2 class="layout">Wallet layout #9</h2>
-
-            <div class="main-content">
-
-                <div class="balance">
-                    <div class="inner-balance">
-
-                        <div class="current-balance">
-                            <span>CURRENT BALANCE</span>
-                            <h3>$23,387.32</h3>
-                        </div>
-                        
-                        <div class="balance-buttons">
-                            <button>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24.225" viewBox="0 0 24 24.225" class="small-chart__svg"><g id="\u0421\u0433\u0440\u0443\u043F\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C_77532" data-name="\u0421\u0433\u0440\u0443\u043F\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C 77532" transform="translate(-68 -424.408)"><path id="\u041A\u043E\u043D\u0442\u0443\u0440_45546" fill="#00003e" d="M91.69 440.915a.8.8 0 0 0 1.6 0 2.617 2.617 0 0 0-2.4-2.514v-.675a.8.8 0 0 0-.79-.809h-.02a.8.8 0 0 0-.786.809v.673a2.613 2.613 0 0 0-2.4 2.516 2.86 2.86 0 0 0 1.056 2.28 6 6 0 0 0 1.889.879 5.3 5.3 0 0 1 1.412.62 1.05 1.05 0 0 1 .436 1.022c0 1.333-3.194 1.333-3.194 0a.8.8 0 1 0-1.6-.035v.035a2.62 2.62 0 0 0 2.4 2.517v.67a.8.8 0 1 0 1.6.035v-.705a2.62 2.62 0 0 0 2.4-2.517 2.86 2.86 0 0 0-1.058-2.28 6 6 0 0 0-1.889-.881 5.2 5.2 0 0 1-1.413-.619 1.05 1.05 0 0 1-.436-1.022c.003-1.332 3.193-1.332 3.193.001" data-name="\u041A\u043E\u043D\u0442\u0443\u0440 45546" transform="translate(-10.09 -6.679)"></path><path id="\u041A\u043E\u043D\u0442\u0443\u0440_45547" fill="#00003e" d="M90.028 434.106a10.409 10.409 0 1 1-8-7.419.792.792 0 0 0 .957-.769v-.02a.8.8 0 0 0-.645-.781 12.012 12.012 0 1 0 9.223 8.557.74.74 0 0 0-.717-.532h-.085a.753.753 0 0 0-.733.964" data-name="\u041A\u043E\u043D\u0442\u0443\u0440 45547" transform="translate(0 -.257)"></path><g id="layer1" transform="translate(84.931 424.408)"><path id="\u041A\u043E\u043D\u0442\u0443\u0440_45548" fill="#00003e" d="M105.1 431.043a.79.79 0 0 1-.7-.469.75.75 0 0 1 .151-.824l3.828-3.828h-1.877a.757.757 0 0 1-.545-1.292.76.76 0 0 1 .538-.224h3.709a.76.76 0 0 1 .755.754v3.7a.758.758 0 1 1-1.515 0v-1.874l-3.8 3.8a.73.73 0 0 1-.545.25Z" data-name="\u041A\u043E\u043D\u0442\u0443\u0440 45548" transform="translate(-104.332 -424.408)"></path></g></g></svg>
-                                DEPOSIT
-                            </button>
-                            <button>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24.225" viewBox="0 0 24 24.225" class="small-chart__svg"><g id="\u0421\u0433\u0440\u0443\u043F\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C_77532" data-name="\u0421\u0433\u0440\u0443\u043F\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C 77532" transform="translate(-68 -424.408)"><path id="\u041A\u043E\u043D\u0442\u0443\u0440_45546" fill="#00003e" d="M91.69 440.915a.8.8 0 0 0 1.6 0 2.617 2.617 0 0 0-2.4-2.514v-.675a.8.8 0 0 0-.79-.809h-.02a.8.8 0 0 0-.786.809v.673a2.613 2.613 0 0 0-2.4 2.516 2.86 2.86 0 0 0 1.056 2.28 6 6 0 0 0 1.889.879 5.3 5.3 0 0 1 1.412.62 1.05 1.05 0 0 1 .436 1.022c0 1.333-3.194 1.333-3.194 0a.8.8 0 1 0-1.6-.035v.035a2.62 2.62 0 0 0 2.4 2.517v.67a.8.8 0 1 0 1.6.035v-.705a2.62 2.62 0 0 0 2.4-2.517 2.86 2.86 0 0 0-1.058-2.28 6 6 0 0 0-1.889-.881 5.2 5.2 0 0 1-1.413-.619 1.05 1.05 0 0 1-.436-1.022c.003-1.332 3.193-1.332 3.193.001" data-name="\u041A\u043E\u043D\u0442\u0443\u0440 45546" transform="translate(-10.09 -6.679)"></path><path id="\u041A\u043E\u043D\u0442\u0443\u0440_45547" fill="#00003e" d="M90.028 434.106a10.409 10.409 0 1 1-8-7.419.792.792 0 0 0 .957-.769v-.02a.8.8 0 0 0-.645-.781 12.012 12.012 0 1 0 9.223 8.557.74.74 0 0 0-.717-.532h-.085a.753.753 0 0 0-.733.964" data-name="\u041A\u043E\u043D\u0442\u0443\u0440 45547" transform="translate(0 -.257)"></path><g id="layer1" transform="translate(84.931 424.408)"><path id="\u041A\u043E\u043D\u0442\u0443\u0440_45548" fill="#00003e" d="M105.1 431.043a.79.79 0 0 1-.7-.469.75.75 0 0 1 .151-.824l3.828-3.828h-1.877a.757.757 0 0 1-.545-1.292.76.76 0 0 1 .538-.224h3.709a.76.76 0 0 1 .755.754v3.7a.758.758 0 1 1-1.515 0v-1.874l-3.8 3.8a.73.73 0 0 1-.545.25Z" data-name="\u041A\u043E\u043D\u0442\u0443\u0440 45548" transform="translate(-104.332 -424.408)"></path></g></g></svg>
-                                WITHDRAW
-                            </button>
-                            <button>
-                                <svg xmlns="http://www.w3.org/2000/svg" id="\u0421\u0433\u0440\u0443\u043F\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C_77534" width="24" height="24" data-name="\u0421\u0433\u0440\u0443\u043F\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C 77534" viewBox="0 0 24 24" class="small-chart__svg"><circle id="\u042D\u043B\u043B\u0438\u043F\u0441_5819" cx="0.938" cy="0.938" r="0.938" fill="#00003e" data-name="\u042D\u043B\u043B\u0438\u043F\u0441 5819" transform="translate(11.063 3.75)"></circle><path id="\u041A\u043E\u043D\u0442\u0443\u0440_45549" fill="#00003e" d="M81.875 244.313v-3.375a.938.938 0 0 0-1.875 0v3.375a.938.938 0 0 0 1.875 0" data-name="\u041A\u043E\u043D\u0442\u0443\u0440 45549" transform="translate(-76.25 -228.75)"></path><path id="\u041A\u043E\u043D\u0442\u0443\u0440_45550" fill="#00003e" d="M237.875 244.313v-3.375a.938.938 0 0 0-1.875 0v3.375a.938.938 0 0 0 1.875 0" data-name="\u041A\u043E\u043D\u0442\u0443\u0440 45550" transform="translate(-224.938 -228.75)"></path><path id="\u041A\u043E\u043D\u0442\u0443\u0440_45551" fill="#00003e" d="M393.875 244.313v-3.375a.938.938 0 0 0-1.875 0v3.375a.938.938 0 0 0 1.875 0" data-name="\u041A\u043E\u043D\u0442\u0443\u0440 45551" transform="translate(-373.625 -228.75)"></path><path id="\u041A\u043E\u043D\u0442\u0443\u0440_45552" fill="#00003e" d="M21.188 392H2.813a2.813 2.813 0 0 0 0 5.625h18.375a2.813 2.813 0 0 0 0-5.625m0 3.75H2.813a.938.938 0 0 1 0-1.875h18.375a.938.938 0 0 1 0 1.875" data-name="\u041A\u043E\u043D\u0442\u0443\u0440 45552" transform="translate(0 -373.625)"></path><path id="\u041A\u043E\u043D\u0442\u0443\u0440_45553" fill="#00003e" d="M22.235 3.952 13.044.2a2.82 2.82 0 0 0-2.088 0L1.765 3.952a2.813 2.813 0 0 0 1.048 5.423h18.375a2.813 2.813 0 0 0 1.048-5.423ZM21.188 7.5H2.813a.938.938 0 0 1-.348-1.809l9.19-3.751a.95.95 0 0 1 .69 0l9.19 3.751a.938.938 0 0 1-.347 1.809" data-name="\u041A\u043E\u043D\u0442\u0443\u0440 45553"></path></svg>
-                                BANK TRANSFER
-                            </button>
-                        </div>
-                        
-                    </div>
-          
-                </div>
-
-                <div class="transaction-section">
-                    <div class="transaction-title">
-                        <p>Transaction history</p>
-                    </div>
-
-                    <div class="transaction-history">
-                        <div class="filters">
-                            <div class="">
-                                <label for="date-filter" class="form-label">Start and End date</label>
-                                <input type="date" class="form-control" id="date-filter">
-                            </div>
-                            <div>
-                                <label for="year-view" class="form-label">View year</label>
-                                <select id="year-view" class="form-select">
-                                    <option>All years</option>
-                                    <option>2024</option>
-                                    <option>2023</option>
-                                    <option>2022</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="status-filter" class="form-label">Status</label>
-                                <select id="status-filter" class="form-select">
-                                    <option>All status</option>
-                                    <option>INITIATED</option>
-                                    <option>COMPLETED</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="table">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Date / Time</th>
-                                        <th>Description</th>
-                                        <th>Amount</th>
-                                        <th>Type</th>
-                                        <th>Auth Status</th>
-                                        <th>Value</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>08/07/2023 <br> 23:00:40</td>
-                                        <td>Deposit to Balanced Mutual Fund Index<br>3hr8974839fhwekuehj489h5t8t583t</td>
-                                        <td>200</td>
-                                        <td>700</td>
-                                        <td class="status-initiated">INITIATED</td>
-                                        <td>$150</td>
-                                    </tr>
-                                    <tr>
-                                        <td>10/07/2024 <br> 18:00:24</td>
-                                        <td>Mutual Fund Index<br>3hr8974839fhwekuehj489h5t8t583t</td>
-                                        <td>150</td>
-                                        <td>200</td>
-                                        <td class="status-initiated">INITIATED</td>
-                                        <td>$300</td>
-                                    </tr>
-                                    <tr>
-                                        <td>04/07/2022 <br> 16:00:00</td>
-                                        <td>To Balanced Mutual Fund Index<br>3hr8974839fhwekuehj489h5t8t583t</td>
-                                        <td>300</td>
-                                        <td>500</td>
-                                        <td class="status-completed">COMPLETED</td>
-                                        <td>$200</td>
-                                    </tr>
-                                    <tr>
-                                        <td>03/04/2024 <br> 10:32:21</td>
-                                        <td>Deposit to Balanced Mutual Fund Index<br>3hr8974839fhwekuehj489h5t8t583t</td>
-                                        <td>100</td>
-                                        <td>300</td>
-                                        <td class="status-completed">COMPLETED</td>
-                                        <td>$100</td>
-                                    </tr>
-                                    <tr>
-                                        <td>03/04/2023 <br> 10:32:21</td>
-                                        <td>Balanced Mutual Fund Index<br>3hr8974839fhwekuehj489h5t8t583t</td>
-                                        <td>500</td>
-                                        <td>100</td>
-                                        <td class="status-initiated">INITIATED</td>
-                                        <td>$200</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <div class="user">
+        <img src="/images/user.png" alt="user">
+        <div>
+          <h4>Austin Robertson</h4>
+          <h5>Marketing Administrator</h5>
         </div>
+      </div>
+
+      <div class="language">
+        <img src="https://hatscripts.github.io/circle-flags/flags/us.svg" alt="">
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="content">
+
+    <h2 class="layout">Wallet layout #9</h2>
+
+    <div class="main-content">
+
+      <div class="balance">
+        <div class="inner-balance">
+
+          <div class="current-balance">
+            <span>CURRENT BALANCE</span>
+            <!--Sum of value column in transactions history -->
+            <h3>$@Model.CurrentBalance</h3>
+          </div>
+
+          <div class="balance-buttons">
+            <button>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24.225" viewBox="0 0 24 24.225" class="small-chart__svg"><g id="\u0421\u0433\u0440\u0443\u043F\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C_77532" data-name="\u0421\u0433\u0440\u0443\u043F\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C 77532" transform="translate(-68 -424.408)"><path id="\u041A\u043E\u043D\u0442\u0443\u0440_45546" fill="#00003e" d="M91.69 440.915a.8.8 0 0 0 1.6 0 2.617 2.617 0 0 0-2.4-2.514v-.675a.8.8 0 0 0-.79-.809h-.02a.8.8 0 0 0-.786.809v.673a2.613 2.613 0 0 0-2.4 2.516 2.86 2.86 0 0 0 1.056 2.28 6 6 0 0 0 1.889.879 5.3 5.3 0 0 1 1.412.62 1.05 1.05 0 0 1 .436 1.022c0 1.333-3.194 1.333-3.194 0a.8.8 0 1 0-1.6-.035v.035a2.62 2.62 0 0 0 2.4 2.517v.67a.8.8 0 1 0 1.6.035v-.705a2.62 2.62 0 0 0 2.4-2.517 2.86 2.86 0 0 0-1.058-2.28 6 6 0 0 0-1.889-.881 5.2 5.2 0 0 1-1.413-.619 1.05 1.05 0 0 1-.436-1.022c.003-1.332 3.193-1.332 3.193.001" data-name="\u041A\u043E\u043D\u0442\u0443\u0440 45546" transform="translate(-10.09 -6.679)"></path><path id="\u041A\u043E\u043D\u0442\u0443\u0440_45547" fill="#00003e" d="M90.028 434.106a10.409 10.409 0 1 1-8-7.419.792.792 0 0 0 .957-.769v-.02a.8.8 0 0 0-.645-.781 12.012 12.012 0 1 0 9.223 8.557.74.74 0 0 0-.717-.532h-.085a.753.753 0 0 0-.733.964" data-name="\u041A\u043E\u043D\u0442\u0443\u0440 45547" transform="translate(0 -.257)"></path><g id="layer1" transform="translate(84.931 424.408)"><path id="\u041A\u043E\u043D\u0442\u0443\u0440_45548" fill="#00003e" d="M105.1 431.043a.79.79 0 0 1-.7-.469.75.75 0 0 1 .151-.824l3.828-3.828h-1.877a.757.757 0 0 1-.545-1.292.76.76 0 0 1 .538-.224h3.709a.76.76 0 0 1 .755.754v3.7a.758.758 0 1 1-1.515 0v-1.874l-3.8 3.8a.73.73 0 0 1-.545.25Z" data-name="\u041A\u043E\u043D\u0442\u0443\u0440 45548" transform="translate(-104.332 -424.408)"></path></g></g></svg>
+              DEPOSIT
+            </button>
+            <button>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24.225" viewBox="0 0 24 24.225" class="small-chart__svg"><g id="\u0421\u0433\u0440\u0443\u043F\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C_77532" data-name="\u0421\u0433\u0440\u0443\u043F\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C 77532" transform="translate(-68 -424.408)"><path id="\u041A\u043E\u043D\u0442\u0443\u0440_45546" fill="#00003e" d="M91.69 440.915a.8.8 0 0 0 1.6 0 2.617 2.617 0 0 0-2.4-2.514v-.675a.8.8 0 0 0-.79-.809h-.02a.8.8 0 0 0-.786.809v.673a2.613 2.613 0 0 0-2.4 2.516 2.86 2.86 0 0 0 1.056 2.28 6 6 0 0 0 1.889.879 5.3 5.3 0 0 1 1.412.62 1.05 1.05 0 0 1 .436 1.022c0 1.333-3.194 1.333-3.194 0a.8.8 0 1 0-1.6-.035v.035a2.62 2.62 0 0 0 2.4 2.517v.67a.8.8 0 1 0 1.6.035v-.705a2.62 2.62 0 0 0 2.4-2.517 2.86 2.86 0 0 0-1.058-2.28 6 6 0 0 0-1.889-.881 5.2 5.2 0 0 1-1.413-.619 1.05 1.05 0 0 1-.436-1.022c.003-1.332 3.193-1.332 3.193.001" data-name="\u041A\u043E\u043D\u0442\u0443\u0440 45546" transform="translate(-10.09 -6.679)"></path><path id="\u041A\u043E\u043D\u0442\u0443\u0440_45547" fill="#00003e" d="M90.028 434.106a10.409 10.409 0 1 1-8-7.419.792.792 0 0 0 .957-.769v-.02a.8.8 0 0 0-.645-.781 12.012 12.012 0 1 0 9.223 8.557.74.74 0 0 0-.717-.532h-.085a.753.753 0 0 0-.733.964" data-name="\u041A\u043E\u043D\u0442\u0443\u0440 45547" transform="translate(0 -.257)"></path><g id="layer1" transform="translate(84.931 424.408)"><path id="\u041A\u043E\u043D\u0442\u0443\u0440_45548" fill="#00003e" d="M105.1 431.043a.79.79 0 0 1-.7-.469.75.75 0 0 1 .151-.824l3.828-3.828h-1.877a.757.757 0 0 1-.545-1.292.76.76 0 0 1 .538-.224h3.709a.76.76 0 0 1 .755.754v3.7a.758.758 0 1 1-1.515 0v-1.874l-3.8 3.8a.73.73 0 0 1-.545.25Z" data-name="\u041A\u043E\u043D\u0442\u0443\u0440 45548" transform="translate(-104.332 -424.408)"></path></g></g></svg>
+              WITHDRAW
+            </button>
+            <button>
+              <svg xmlns="http://www.w3.org/2000/svg" id="\u0421\u0433\u0440\u0443\u043F\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C_77534" width="24" height="24" data-name="\u0421\u0433\u0440\u0443\u043F\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C 77534" viewBox="0 0 24 24" class="small-chart__svg"><circle id="\u042D\u043B\u043B\u0438\u043F\u0441_5819" cx="0.938" cy="0.938" r="0.938" fill="#00003e" data-name="\u042D\u043B\u043B\u0438\u043F\u0441 5819" transform="translate(11.063 3.75)"></circle><path id="\u041A\u043E\u043D\u0442\u0443\u0440_45549" fill="#00003e" d="M81.875 244.313v-3.375a.938.938 0 0 0-1.875 0v3.375a.938.938 0 0 0 1.875 0" data-name="\u041A\u043E\u043D\u0442\u0443\u0440 45549" transform="translate(-76.25 -228.75)"></path><path id="\u041A\u043E\u043D\u0442\u0443\u0440_45550" fill="#00003e" d="M237.875 244.313v-3.375a.938.938 0 0 0-1.875 0v3.375a.938.938 0 0 0 1.875 0" data-name="\u041A\u043E\u043D\u0442\u0443\u0440 45550" transform="translate(-224.938 -228.75)"></path><path id="\u041A\u043E\u043D\u0442\u0443\u0440_45551" fill="#00003e" d="M393.875 244.313v-3.375a.938.938 0 0 0-1.875 0v3.375a.938.938 0 0 0 1.875 0" data-name="\u041A\u043E\u043D\u0442\u0443\u0440 45551" transform="translate(-373.625 -228.75)"></path><path id="\u041A\u043E\u043D\u0442\u0443\u0440_45552" fill="#00003e" d="M21.188 392H2.813a2.813 2.813 0 0 0 0 5.625h18.375a2.813 2.813 0 0 0 0-5.625m0 3.75H2.813a.938.938 0 0 1 0-1.875h18.375a.938.938 0 0 1 0 1.875" data-name="\u041A\u043E\u043D\u0442\u0443\u0440 45552" transform="translate(0 -373.625)"></path><path id="\u041A\u043E\u043D\u0442\u0443\u0440_45553" fill="#00003e" d="M22.235 3.952 13.044.2a2.82 2.82 0 0 0-2.088 0L1.765 3.952a2.813 2.813 0 0 0 1.048 5.423h18.375a2.813 2.813 0 0 0 1.048-5.423ZM21.188 7.5H2.813a.938.938 0 0 1-.348-1.809l9.19-3.751a.95.95 0 0 1 .69 0l9.19 3.751a.938.938 0 0 1-.347 1.809" data-name="\u041A\u043E\u043D\u0442\u0443\u0440 45553"></path></svg>
+              BANK TRANSFER
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="transaction-section">
+        <div class="transaction-title">
+          <p>Transaction history</p>
+        </div>
+
+        <div class="transaction-history">
+          <form class="filters" method="get" asp-action="Index" asp-route-page="@Model.Page">
+            <input type="hidden" name="page" value="@Model.Page" />
+            <input type="hidden" name="sortDirection" value="@Model.SortDirection" />
+            <input type="hidden" name="sortColumn" value="@Model.SortColumn" />
+            <div>
+              <label for="start-date-filter" class="form-label">Start date</label>
+              <input type="date" value="@(Model.StartDate == null ? null : Model.StartDate.Value.ToString("YYYY-mm-dd"))"
+                     mame="startDate" class="form-control" id="start-date-filter" onchange="this.form.submit()">
+            </div>
+
+            <div>
+              <label for="end-date-filter" class="form-label">End date</label>
+              <input type="date" value="@(Model.StartDate == null ? null : Model.StartDate.Value.ToString("YYYY-mm-dd"))"
+                     name="endDate" class="form-control" id="end-date-filter" onchange="this.form.submit()">
+            </div>
+
+            <div>
+              <label for="year-view" class="form-label">View year</label>
+              @Html.DropDownListFor(model =>
+                     model.Year,
+                     new SelectList(yearSelectOptions, "Value", "Text"),
+                     new { @class = "form-select", id = "year-view", name = "year", onchange = "this.form.submit()" }
+                     )
+            </div>
+            <div>
+              <label for="status-filter" class="form-label">Status</label>
+              @Html.DropDownListFor(model =>
+                     model.StatusId,
+                     new SelectList(statusSelectOptions, "Value", "Text"),
+                     new { @class = "form-select", id = "status-filter", name = "statusId", onchange = "this.form.submit()" }
+                     )
+            </div>
+          </form>
+
+          <div class="table">
+
+            <table>
+              <thead>
+                <tr>
+                  @foreach (var header in transactionHeaders)
+                  {
+                    <th>
+                      <a class="table-header-cell" type="button"
+                         asp-route-sortColumn="@if (Model.SortDirection == "desc")
+                         {
+                           <text></text>
+                         }
+                         else
+                         {
+                           <text>@header.ColumnName</text>
+                         }"
+                         asp-route-sortDirection="@if (Model.SortDirection == "asc")
+                       {
+                        <text>desc</text>
+                      }
+                      else if (Model.SortDirection == "desc")
+                      {
+                        <text></text>
+                      }
+                      else
+                      {
+                        <text>asc</text>
+                      }"
+                          asp-route-startDate="@Model.StartDate" asp-route-endDate="@Model.EndDate"
+                          asp-route-year="@Model.Year" asp-route-statusId="@Model.StatusId"
+                          asp-route-page="@Model.Page"
+                          >
+                            <span>
+                          @header.Title
+                            </span>
+                        @if (Model.SortColumn == header.ColumnName && (Model.SortDirection == "desc" || Model.SortDirection == "asc"))
+                        {
+                                  <div class="sort-direction-arrow @(Model.SortDirection == "desc" ? "sort-direction-desc" : "")">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 8 5" class="arrow-svg arrow-svg_active" style="min-width: 7px; height: 7px;"><path fill="#FFF" d="M3.646 4.354a.5.5 0 0 0 .708 0l3.182-3.182a.5.5 0 1 0-.708-.708L4 3.293 1.172.464a.5.5 0 1 0-.708.708zM3.5 3v1h1V3z"></path></svg>
+                                  </div>
+                        }
+                          </a>
+                    </th>
+                  }
+                </tr>
+              </thead>
+              @if (Model.Data != null && Model.Data.Count() > 0)
+              {
+                <tbody>
+                  @foreach (var club in Model.Data)
+                  {
+                    <tr>
+                      <td>@club.TransactionDateOnly <br> @club.TransactionTimeOnly</td>
+                      <td>@club.Description<br>@club.Reference</td>
+                      <td>@club.Amount</td>
+                      <td>@club.Type</td>
+                      <td class="@(club.StatusId == TransactionStatus.Initiated ? "status-initiated" : "status-completed")">@club.Status</td>
+                      <td>@club.ValueText</td>
+                    </tr>
+                  }
+
+                </tbody>
+              }
+            </table>
+
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              @if (isValidPage)
+              {
+                <a type="button" class="btn btn-sm btn-outline-primary @prevDisabled"
+                   asp-action="Index" asp-route-page="@(Model.Page - 1)"
+                   asp-route-startDate="@Model.StartDate" asp-route-endDate="@Model.EndDate"
+                   asp-route-sortColumn="@Model.SortColumn" asp-route-sortDirection="@Model.SortDirection"
+                   asp-route-year="@Model.Year" asp-route-statusId="@Model.StatusId">
+                  Prev
+                </a>
+                <a type="button" class="btn btn-sm btn-outline-primary @nextDisabled"
+                   asp-action="Index" asp-route-page="@(Model.Page + 1)"
+                   asp-route-sortColumn="@Model.SortColumn" asp-route-sortDirection="@Model.SortDirection"
+                   asp-route-startDate="@Model.StartDate" asp-route-endDate="@Model.EndDate"
+                   asp-route-year="@Model.Year" asp-route-statusId="@Model.StatusId">
+                  Next
+                </a>
+                <span class="text-muted text-small">Results @resultStart - @resultEnd of @Model.TotalRows</span>
+              }
+            </div>
+
+
+          </div>
+        </div>
+      </div>
     </div>
 
-@* 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wallet Layout</title>
-    <link rel="stylesheet" href="styles.css">
-</head> *@
-@* <body> *@
-    
-    
-@* </body>
-</html> *@
+  </div>
+
+
 

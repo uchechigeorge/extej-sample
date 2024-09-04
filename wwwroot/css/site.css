@@ -256,9 +256,9 @@ h2.layout {
   fill: #fff;
 }
 
-/* .transaction-section {
-  border-radius: 10px;
-} */
+.transaction-history {
+  border-radius: 0 10px 10px 10px;
+}
 
 .transaction-title p {
   font-size: 12px;
@@ -294,6 +294,8 @@ h2.layout {
 .table {
   width: 100%;
   overflow-x: auto;
+  min-height: 300px;
+  background-color: #2b2e4a;
 }
 
 table {
@@ -301,6 +303,7 @@ table {
   width: 100%;
   border-collapse: collapse;
   color: #e0e1e6;
+  min-width: 800px;
 }
 
 table th,
@@ -319,6 +322,22 @@ table tbody tr:nth-child(odd) {
 
 table tbody tr:nth-child(even) {
   background-color: #1d1f33;
+}
+
+.table-header-cell {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  text-decoration: none;
+  color: #fff;
+}
+.table-header-cell:hover {
+  color: #fff;
+}
+
+.sort-direction-desc svg {
+  transform: rotate(180deg);
+  transition: all .4s;
 }
 
 .status-initiated {
