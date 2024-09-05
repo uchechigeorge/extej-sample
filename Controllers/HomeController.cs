@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using MVCWebApplication1.Helpers;
 using MVCWebApplication1.Interfaces;
 using MVCWebApplication1.Models;
 using MVCWebApplication1.ViewModels;
@@ -7,34 +6,42 @@ using System.Diagnostics;
 
 namespace MVCWebApplication1.Controllers
 {
-	public class HomeController(ITransactionRepository transactionRepository) : Controller
+	public class HomeController(ITransactionService transactionService, ITransactionRepository transactionRepository) : Controller
 	{
 		[HttpGet]
 		public async Task<IActionResult> Index(GetTransactionsParametersViewModel parameters)
 		{
-			var result = await transactionRepository.GetAll(parameters);
-			var data = result.Data;
-			var totalRows = result.TotalRows;
-
-			var response = new GetTransactionsResBodyViewModel
-			{
-				Data = data,
-				Message = "Ok",
-				Status = 200,
-				Page = parameters.Page,
-				PageSize = parameters.PageSize,
-				Year = parameters.Year,
-				StatusId = parameters.StatusId,
-				TotalRows = totalRows,
-				TotalPages = (int)Math.Ceiling(totalRows / (double)parameters.PageSize),
-				EndDate = parameters.EndDate,
-				StartDate = parameters.StartDate,
-				CurrentBalance = result.Extras?.GetValueOrDefault("CurrentBalance").GetDecimal().ToString("N2"),
-				SortColumn = parameters.SortColumn,
-				SortDirection = parameters.SortDirection,
-			};
+			var response = await transactionService.GetAllAndMapResponseAsync(parameters);
 
 			return View(response);
+		}
+
+		public IActionResult Add()
+		{
+			return View();
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> Add(AddTransactionViewModel model)
+		{
+			if (!ModelState.IsValid)
+			{
+				var transaction = new Transaction
+				{
+					Amount = model.Amount,
+					Description = model.Description,
+					Reference = model.Reference,
+					StatusId = model.StatusId,
+					TransactionDate = model.TransactionDate,
+					Type = model.Type,
+					Value = model.Value,
+				};
+				await transactionRepository.Add(transaction);
+
+				return RedirectToAction("Index");
+			}
+
+			return View(model);
 		}
 
 		public IActionResult Privacy()

@@ -8,8 +8,8 @@ public interface ITransactionRepository
 {
   Task<ViewQuery<Transaction>> GetAll(GetTransactionsParametersViewModel paramters);
   Task<Transaction> GetById(string id);
-  bool Add(Transaction user);
-  bool Update(Transaction user);
-  bool Delete(Transaction user);
-  bool Save();
+  Task<bool> Add(Transaction transaction);
+  Task<bool> Update(Transaction transaction);
+  Task<bool> Delete(Transaction transaction);
+  Task<bool> Save();
 }

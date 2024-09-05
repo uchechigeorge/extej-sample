@@ -72,22 +72,24 @@ public class TransactionRepository(ApplicationDbContext dbContext) : ITransactio
     throw new NotImplementedException();
   }
 
-  public bool Add(Transaction user)
+  public async Task<bool> Add(Transaction transaction)
+  {
+    await dbContext.AddAsync(transaction);
+    return await Save();
+  }
+
+  public Task<bool> Delete(Transaction transaction)
   {
     throw new NotImplementedException();
   }
 
-  public bool Delete(Transaction user)
+  public async Task<bool> Save()
   {
-    throw new NotImplementedException();
+    var saved = await dbContext.SaveChangesAsync();
+    return saved > 0;
   }
 
-  public bool Save()
-  {
-    throw new NotImplementedException();
-  }
-
-  public bool Update(Transaction user)
+  public Task<bool> Update(Transaction transaction)
   {
     throw new NotImplementedException();
   }
