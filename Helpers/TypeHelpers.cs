@@ -75,4 +75,57 @@ public static class TypeHelperExtensions
           || ((string)value)?.ToLower() == bool.TrueString.ToLower());
     }
 
+    /// <summary>
+    /// Checks if an object is of numeric type
+    /// </summary>
+    /// <param name="o">Object to check</param>
+    /// <returns></returns>
+    public static bool IsNumericType(this object o)
+    {
+        var type = o.GetType();
+
+        if (NumericTypes.Contains(type))
+        {
+            return true;
+        }
+
+        // Check for nullable numeric types
+        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+        {
+            var underlyingType = Nullable.GetUnderlyingType(type);
+            return NumericTypes.Contains(underlyingType);
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Checks if a type is of numeric type
+    /// </summary>
+    /// <param name="type">Type to check</param>
+    /// <returns></returns>
+    public static bool IsNumericType(this Type type)
+    {
+        if (NumericTypes.Contains(type))
+        {
+            return true;
+        }
+
+        // Check for nullable numeric types
+        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+        {
+            var underlyingType = Nullable.GetUnderlyingType(type);
+            return NumericTypes.Contains(underlyingType);
+        }
+
+        return false;
+    }
+
+    private static readonly Type[] NumericTypes =
+    [
+      typeof(byte), typeof(sbyte), typeof(short), typeof(ushort),
+    typeof(int), typeof(uint), typeof(long), typeof(ulong),
+    typeof(float), typeof(double), typeof(decimal)
+    ];
+
 }
