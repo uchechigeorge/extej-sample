@@ -1,5 +1,6 @@
 using MVCWebApplication1.Helpers;
 using MVCWebApplication1.Interfaces;
+using MVCWebApplication1.Models;
 using MVCWebApplication1.ViewModels;
 
 namespace MVCWebApplication1.Services;
@@ -29,5 +30,20 @@ public class TransactionService(ITransactionRepository transactionRepository) : 
     };
 
     return response;
+  }
+
+  public async Task<bool> AddAsync(AddTransactionViewModel model)
+  {
+    var transaction = new Transaction
+    {
+      Amount = model.Amount,
+      Description = model.Description,
+      Reference = model.Reference,
+      StatusId = model.StatusId,
+      TransactionDate = model.TransactionDate,
+      Type = model.Type,
+      Value = model.Value,
+    };
+    return await transactionRepository.Add(transaction);
   }
 }

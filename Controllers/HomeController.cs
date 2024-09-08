@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace MVCWebApplication1.Controllers
 {
-	public class HomeController(ITransactionService transactionService, ITransactionRepository transactionRepository) : Controller
+	public class HomeController(ITransactionService transactionService) : Controller
 	{
 		[HttpGet]
 		public async Task<IActionResult> Index(GetTransactionsParametersViewModel parameters)
@@ -24,20 +24,9 @@ namespace MVCWebApplication1.Controllers
 		[HttpPost]
 		public async Task<IActionResult> Add(AddTransactionViewModel model)
 		{
-			if (!ModelState.IsValid)
+			if (ModelState.IsValid)
 			{
-				var transaction = new Transaction
-				{
-					Amount = model.Amount,
-					Description = model.Description,
-					Reference = model.Reference,
-					StatusId = model.StatusId,
-					TransactionDate = model.TransactionDate,
-					Type = model.Type,
-					Value = model.Value,
-				};
-				await transactionRepository.Add(transaction);
-
+				await transactionService.AddAsync(model);
 				return RedirectToAction("Index");
 			}
 
